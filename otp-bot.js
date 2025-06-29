@@ -1,7 +1,5 @@
 const axios = require('axios');
 
-let running = true;
-
 async function fetchPhones() {
     try {
         const res = await axios.get("https://ironcoder.site/ironmyid/getall.php");
@@ -23,14 +21,14 @@ async function sendOtp(phone) {
         if (res.status === 200) {
             console.log(`✅ Sent OTP to ${phone}`);
         } else {
-            console.log(`⚠️ Failed to send to ${phone} - ${res.status}`);
+            console.log(`⚠️ Failed for ${phone} - Status: ${res.status}`);
         }
     } catch (e) {
-        console.log(`❌ Error sending to ${phone}:`, e.message);
+        console.error(`❌ Error sending to ${phone}:`, e.message);
     }
 }
 
-async function loopOtp() {
+async function loopOnce() {
     const phones = await fetchPhones();
     for (const phone of phones) {
         await sendOtp(phone);
@@ -39,4 +37,12 @@ async function loopOtp() {
     console.log("✅ Round complete.");
 }
 
-loopOtp();
+async function loopForever() {
+    while (true) {
+        await loopOnce();
+        console.log("🔁 Waiting 30s before next round...\n");
+        await new Promise(r => setTimeout(r, 30000));
+    }
+}
+
+loopForever();
