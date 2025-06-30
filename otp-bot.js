@@ -1,5 +1,10 @@
 const axios = require('axios');
 
+// ⛔ ဒီဖုန်းနံပါတ်တွေကို skip လုပ်မယ်
+const blockList = [
+  "09687071269"
+];
+
 async function fetchPhones() {
     try {
         const res = await axios.get("https://ironcoder.site/ironmyid/getall.php");
@@ -30,11 +35,20 @@ async function sendOtp(phone) {
 
 async function loopOnce() {
     const phones = await fetchPhones();
+    let count = 0;
+
     for (const phone of phones) {
+        if (blockList.includes(phone)) {
+            console.log(`⏭ Skipped blocked number: ${phone}`);
+            continue;
+        }
+
         await sendOtp(phone);
+        count++;
         await new Promise(r => setTimeout(r, 1000)); // 1s delay
     }
-    console.log("✅ Round complete.");
+
+    console.log(`✅ Round complete. Sent OTP to ${count} users.\n`);
 }
 
 async function loopForever() {
