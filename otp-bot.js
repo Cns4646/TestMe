@@ -9,7 +9,7 @@ const blockList = [
 
 // ✅ Random phone number generator
 function randomPhone() {
-    const prefix = "09";
+    const prefix = "096";
     const digits = Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
     return prefix + digits;
 }
