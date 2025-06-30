@@ -2,7 +2,8 @@ const axios = require('axios');
 
 // ⛔ ဒီဖုန်းနံပါတ်တွေကို skip လုပ်မယ်
 const blockList = [
-  "09687071269"
+  "09687071269",
+  "09670871425"
 ];
 
 async function fetchPhones() {
