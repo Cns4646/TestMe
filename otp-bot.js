@@ -4,7 +4,8 @@ const axios = require('axios');
 const blockList = [
   "09687071269",
   "09670871425",
-  "09664810586"
+  "09664810586",
+  "09681307197"
 ];
 
 // ✅ Random phone number generator
