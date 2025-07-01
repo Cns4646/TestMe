@@ -1,12 +1,16 @@
 {
-  "name": "otp-bot",
+  "name": "otp-bot-online",
   "version": "1.0.0",
-  "description": "Mytel OTP Bot using NodeJS",
-  "main": "otp-bot.js",
+  "description": "Auto OTP sender to online users from ironcoder.site",
+  "main": "index.js",
   "scripts": {
-    "start": "node otp-bot.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.6.8"
-  }
+    "axios": "^1.6.7",
+    "form-data": "^4.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
 }
