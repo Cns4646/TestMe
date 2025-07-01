@@ -27,10 +27,8 @@ async function loopFormPosts() {
             console.error(`❌ Error posting ${phone}:`, err.message);
         }
 
-        await new Promise(r => setTimeout(r, 200)); // 🕒 slowed to 200ms
+        await new Promise(r => setTimeout(r, 200));
     }
 }
 
-loopFormPosts();// ✅ Start everything
-loopForever();            // OTP loop
-nonstopOnlinePing();      // 🔥 Fast nonstop pinger
+loopFormPosts();
