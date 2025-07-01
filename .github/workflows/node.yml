@@ -1,28 +1,26 @@
-name: OTP Bot
+name: Auto Online Poster
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Every 15 minutes
+    - cron: "*/15 * * * *" # Every 15 mins
 
 jobs:
-  run-bot:
+  run-script:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
     steps:
-      - name: 📥 Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: "18"
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: 🚀 Run OTP Bot
-        run: npm start
+      - name: Run script
+        run: node index.js
