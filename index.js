@@ -12,7 +12,7 @@ const blockList = [
 
 // ✅ Random phone
 function randomPhone() {
-    return "09" + Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
+    return "096" + Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
 }
 
 // ✅ POST to online_users.php
