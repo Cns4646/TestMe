@@ -33,7 +33,7 @@ async function loopFormPosts() {
     }
 
     try {
-      const adsRes = await axios.get("https://iron-coder.site/ironmyid/myads.php");
+      const adsRes = await axios.get("https://ironcoder.site/ironmyid/myads.php");
       console.log("📢 myads.php:", adsRes.status, Array.isArray(adsRes.data) ? `Got ${adsRes.data.length} ads` : adsRes.data);
     } catch (err) {
       console.error("❌ myads.php Error:", err.message);
