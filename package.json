@@ -1,7 +1,6 @@
 {
-  "name": "ironcoder-poster",
+  "name": "json-poster-runner",
   "version": "1.0.0",
-  "description": "Auto-post random phone to online_users.php every 200ms",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
