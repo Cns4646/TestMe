@@ -1,26 +1,24 @@
-name: Auto Online Poster
+name: Send OTP & Post Form
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *" # Every 15 mins
+    - cron: "*/15 * * * *" # Every 15 minutes
 
 jobs:
-  run-script:
+  otp_job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 📦 Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '20'
 
-      - name: Install dependencies
+      - name: 📥 Install Dependencies
         run: npm install
 
-      - name: Run script
+      - name: 🚀 Run OTP Sender
         run: node index.js
