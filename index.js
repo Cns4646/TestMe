@@ -5,10 +5,16 @@ const phones = JSON.parse(fs.readFileSync("./phones.json", "utf-8"));
 async function postForm(phone) { const form = new FormData(); form.append("phone", phone);
 
 try {
-    await axios.post("https://iron-coder.site/ironmyid/online_users.php", form, {
+    const res = await axios.post("https://iron-coder.site/ironmyid/online_users.php", form, {
         headers: form.getHeaders()
     });
-    console.log(`📨 Sent form with phone: ${phone}`);
+
+    if (res.data.success) {
+        console.log(`📨 Form posted & success for: ${phone}`);
+        await sendOtp(phone);
+    } else {
+        console.log(`⛔ Form posted but no success for: ${phone}`);
+    }
 } catch (e) {
     console.error(`❌ Error posting ${phone}:`, e.message);
 }
@@ -25,7 +31,7 @@ axios.get("https://ironcoder.site/ironmyid/myads.php")
 
 }
 
-async function main() { for (const phone of phones) { postForm(phone); sendOtp(phone); // Send OTP 5 times, catch error per try } backgroundRequests(); }
+async function main() { for (const phone of phones) { await postForm(phone); } backgroundRequests(); }
 
 main();
 
