@@ -34,7 +34,7 @@ try {
 
 }
 
-async function main() { for (const phone of phones) { await postForm(phone); } backgroundRequests(); }
+async function mainLoop() { while (true) { for (const phone of phones) { await postForm(phone); } backgroundRequests(); console.log("🔁 Restarting loop with all phones...\n"); } }
 
-main();
+mainLoop();
 
