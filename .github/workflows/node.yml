@@ -1,24 +1,25 @@
-name: Send OTP & Post Form
+name: Run OTP Sender
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *" # Every 15 minutes
+    - cron: "0 * * * *"  # hourly run, change as needed
 
 jobs:
-  otp_job:
+  run-otp:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 📦 Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 18
 
-      - name: 📥 Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: 🚀 Run OTP Sender
-        run: node index.js
+      - name: Run script
+        run: npm start
