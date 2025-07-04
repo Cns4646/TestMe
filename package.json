@@ -1,8 +1,7 @@
 {
-  "name": "otp-sender",
+  "name": "otp-poster",
   "version": "1.0.0",
-  "description": "Send OTPs from backup.json",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
