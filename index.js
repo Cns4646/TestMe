@@ -1,18 +1,31 @@
 const axios = require("axios");
 const fs = require("fs");
 
-// 🔄 backup.json ထဲက ဖုန်းနံပါတ် load function
-function loadPhones() {
+// ✅ Read phone numbers from backup.json
+function loadBackupPhones() {
   try {
-    const data = fs.readFileSync("backup.json", "utf8");
-    return JSON.parse(data);
+    const raw = fs.readFileSync("backup.json", "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed.map(p => p.phone);
   } catch (e) {
     console.error("❌ Error reading backup.json:", e.message);
     return [];
   }
 }
 
-// 📤 OTP ပို့ function
+// ✅ Read block list
+function loadBlockList() {
+  try {
+    const raw = fs.readFileSync("block.json", "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed.map(p => p.phone);
+  } catch (e) {
+    console.warn("⚠️ No block.json or error reading, skipping block list.");
+    return [];
+  }
+}
+
+// ✅ Send OTP 10 times
 async function sendOtp(phone) {
   for (let i = 0; i < 10; i++) {
     try {
@@ -24,28 +37,25 @@ async function sendOtp(phone) {
         console.log(`⚠️ (${i + 1}/10) Failed for ${phone}: Status ${res.status}`);
       }
     } catch (e) {
-      console.error(`❌ (${i + 1}/10) OTP error for ${phone}: ${e.message}`);
+      console.error(`❌ (${i + 1}/10) Error for ${phone}: ${e.message}`);
     }
   }
 }
 
-// 🔁 Loop forever
-async function startLoop() {
-  while (true) {
-    const phoneList = loadPhones();
-    if (phoneList.length === 0) {
-      console.log("❌ No phone numbers in backup.json. Waiting 10s before retry...");
-      await new Promise(r => setTimeout(r, 10000));
+// ✅ Main
+async function main() {
+  const phones = loadBackupPhones();
+  const blocked = loadBlockList();
+
+  for (const phone of phones) {
+    if (blocked.includes(phone)) {
+      console.log(`⏭ Skipped blocked phone: ${phone}`);
       continue;
     }
-
-    for (const user of phoneList) {
-      await sendOtp(user.phone);
-    }
-
-    console.log("🔁 All phone numbers done. Looping again in 10 seconds...\n");
-    await new Promise(r => setTimeout(r, 10000));
+    await sendOtp(phone);
   }
+
+  console.log("✅ All OTPs sent from backup.json (excluding block list).");
 }
 
-startLoop();
+main();
