@@ -23,3 +23,6 @@ jobs:
 
       - name: Run script
         run: npm start
+
+      - name: Save random user
+        run: node save.js
